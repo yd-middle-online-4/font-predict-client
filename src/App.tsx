@@ -42,6 +42,8 @@ export default function App() {
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [aspect, setAspect] = useState<number | undefined>(1);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [predict, setPredict] = useState<boolean>(false);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -93,12 +95,44 @@ export default function App() {
     }
   }
 
-  function haddleDownload() {
-    const getImage = previewCanvasRef.current?.toDataURL("image/png");
-    const download = document.getElementById("download");
-    const image = getImage?.replace("image/png", "image/octet-stream");
-    download?.setAttribute("href", image!);
+  function haddleUpload(event: any) {
+    event.preventDefault();
+    setLoading(true);
+    const imgURL = previewCanvasRef.current?.toDataURL("image/png");
+    fetch(imgURL!)
+      .then((res) => res.blob())
+      .then((blob) => {
+        let data = new FormData();
+        data.append("image", blob, "filename");
+        console.log(blob);
+        // Upload
+        fetch("http://127.0.0.1:5555/predict", {
+          method: "POST",
+          body: data,
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.json();
+            }
+            throw new Error("Network response was not ok.");
+          })
+          .then((data) => {
+            console.log(data);
+            setLoading(false);
+            setPredict(true);
+          })
+          .catch((error) => {
+            console.log(`error: ${error}`);
+          });
+      });
   }
+
+  // function haddleDownload() {
+  //   const getImage = previewCanvasRef.current?.toDataURL("image/png");
+  //   const download = document.getElementById("download");
+  //   const image = getImage?.replace("image/png", "image/octet-stream");
+  //   download?.setAttribute("href", image!);
+  // }
 
   return (
     <div className="App">
@@ -162,13 +196,19 @@ export default function App() {
           />
         )}
       </div>
-      <div>
-        <a id="download" download="image.png">
-          <button type="button" onClick={() => haddleDownload()}>
-            Download
-          </button>
-        </a>
-      </div>
+      <form onSubmit={(e) => haddleUpload(e)}>
+        <button>Submit</button>
+      </form>
+      {loading && (
+        <div>
+          <span>Loading...</span>
+        </div>
+      )}
+      {predict && (
+        <div>
+          <h1>Result</h1>
+        </div>
+      )}
     </div>
   );
 }
