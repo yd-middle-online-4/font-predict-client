@@ -10,6 +10,7 @@ import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 
 import "react-image-crop/dist/ReactCrop.css";
+import styled from "styled-components";
 
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.
@@ -44,6 +45,7 @@ export default function App() {
   const [aspect, setAspect] = useState<number | undefined>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [predict, setPredict] = useState<boolean>(false);
+  const [filename, setFilename] = useState<string | boolean>(false);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -53,6 +55,7 @@ export default function App() {
         setImgSrc(reader.result?.toString() || "")
       );
       reader.readAsDataURL(e.target.files[0]);
+      setFilename(e.target.files[0].name);
     }
   }
 
@@ -103,8 +106,8 @@ export default function App() {
       .then((res) => res.blob())
       .then((blob) => {
         let data = new FormData();
-        data.append("image", blob, "filename");
-        console.log(blob);
+        data.append("image", blob, "image.png");
+        // console.log(blob);
         // Upload
         fetch("http://127.0.0.1:5555/predict", {
           method: "POST",
@@ -117,12 +120,13 @@ export default function App() {
             throw new Error("Network response was not ok.");
           })
           .then((data) => {
-            console.log(data);
+            // console.log(data);
             setLoading(false);
             setPredict(true);
           })
           .catch((error) => {
-            console.log(`error: ${error}`);
+            // console.log(`error: ${error}`);
+            setLoading(false);
           });
       });
   }
@@ -136,10 +140,23 @@ export default function App() {
 
   return (
     <div className="App">
+      <div className="header">
+        <h1>서체 폰트 판별기</h1>
+        <h3>이미지를 업로드하고 문자(하나)에 맞춰서 잘라주세요.</h3>
+      </div>
       <div className="Crop-Controls">
-        <input type="file" accept="image/*" onChange={onSelectFile} />
+        <div className="filebox">
+          <label htmlFor="img_file">업로드</label>
+          <input
+            id="img_file"
+            type="file"
+            accept="image/*"
+            onChange={onSelectFile}
+          />
+          {filename && <span>{filename}</span>}
+        </div>
         <div>
-          <label htmlFor="scale-input">Scale: </label>
+          <label htmlFor="scale-input">배율: </label>
           <input
             id="scale-input"
             type="number"
@@ -150,7 +167,7 @@ export default function App() {
           />
         </div>
         <div>
-          <label htmlFor="rotate-input">Rotate: </label>
+          <label htmlFor="rotate-input">회전: </label>
           <input
             id="rotate-input"
             type="number"
@@ -161,9 +178,9 @@ export default function App() {
             }
           />
         </div>
-        <div>
+        <div className="toggle">
           <button onClick={handleToggleAspectClick}>
-            Toggle aspect {aspect ? "off" : "on"}
+            비율 고정 {aspect ? "on" : "off"}
           </button>
         </div>
       </div>
@@ -175,6 +192,7 @@ export default function App() {
           aspect={aspect}
         >
           <img
+            className="original-img"
             ref={imgRef}
             alt="Crop me"
             src={imgSrc}
@@ -196,17 +214,19 @@ export default function App() {
           />
         )}
       </div>
-      <form onSubmit={(e) => haddleUpload(e)}>
-        <button>Submit</button>
-      </form>
+      {filename && (
+        <form className="submit" onSubmit={(e) => haddleUpload(e)}>
+          <button>Submit</button>
+        </form>
+      )}
       {loading && (
         <div>
-          <span>Loading...</span>
+          <span>제출 중...</span>
         </div>
       )}
       {predict && (
         <div>
-          <h1>Result</h1>
+          <h1>분석 결과</h1>
         </div>
       )}
     </div>
