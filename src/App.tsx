@@ -10,7 +10,6 @@ import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 
 import "react-image-crop/dist/ReactCrop.css";
-import styled from "styled-components";
 
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.
@@ -34,6 +33,11 @@ function centerAspectCrop(
   );
 }
 
+interface Result {
+  font: string;
+  font_idx: string;
+}
+
 export default function App() {
   const [imgSrc, setImgSrc] = useState("");
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,6 +50,12 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(false);
   const [predict, setPredict] = useState<boolean>(false);
   const [filename, setFilename] = useState<string | boolean>(false);
+  const [result, setResult] = useState<Result | undefined>();
+  const [address, setAddress] = useState<string>(
+    "http://127.0.0.1:5555/predict"
+  );
+  const [value, setValue] = useState<string>("");
+  const inputRef = useRef(null);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -109,7 +119,7 @@ export default function App() {
         data.append("image", blob, "image.png");
         // console.log(blob);
         // Upload
-        fetch("http://127.0.0.1:5555/predict", {
+        fetch(address, {
           method: "POST",
           body: data,
         })
@@ -120,7 +130,7 @@ export default function App() {
             throw new Error("Network response was not ok.");
           })
           .then((data) => {
-            // console.log(data);
+            setResult(data!.data);
             setLoading(false);
             setPredict(true);
           })
@@ -131,19 +141,42 @@ export default function App() {
       });
   }
 
+  const onApplyAddress = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAddress(value);
+  };
+
+  function onChange(event: React.FormEvent<HTMLInputElement>) {
+    const {
+      currentTarget: { value },
+    } = event;
+    setValue(value);
+  }
+
   // function haddleDownload() {
   //   const getImage = previewCanvasRef.current?.toDataURL("image/png");
   //   const download = document.getElementById("download");
   //   const image = getImage?.replace("image/png", "image/octet-stream");
   //   download?.setAttribute("href", image!);
   // }
-
   return (
     <div className="App">
       <div className="header">
         <h1>서체 폰트 판별기</h1>
-        <h3>이미지를 업로드하고 문자(하나)에 맞춰서 잘라주세요.</h3>
+        <h3>이미지를 업로드하고 문장에 맞춰서 잘라주세요.</h3>
+        <p>아래는 예시입니다. (5글자 권장)</p>
+        <img src={`/images/sample.jpg`} alt="" />
       </div>
+      <form onSubmit={onApplyAddress} className="server-input">
+        <h3>서버 주소</h3>
+        <input
+          value={value}
+          onChange={onChange}
+          type="text"
+          placeholder="주소를 입력해주세요."
+        />
+        <button>주소 적용</button>
+      </form>
       <div className="Crop-Controls">
         <div className="filebox">
           <label htmlFor="img_file">업로드</label>
@@ -227,6 +260,8 @@ export default function App() {
       {predict && (
         <div>
           <h1>분석 결과</h1>
+          <h3>{result?.font}</h3>
+          <img src={`/images/${result?.font_idx}.jpg`} alt="" />
         </div>
       )}
     </div>
