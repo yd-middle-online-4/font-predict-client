@@ -30,6 +30,15 @@ img {
   cursor: pointer;
   border-radius: 4px;
   margin-right: 10px;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.filebox label:hover {
+  background-color: #418ac9;
+}
+
+.filebox label:active {
+  background-color: #2b6597;
 }
 
 .filebox input[type="file"] {
@@ -55,6 +64,15 @@ img {
   border-radius: 6px;
   outline: none;
   border: none;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.toggle button:hover {
+  background-color: #418ac9;
+}
+
+.toggle button:active {
+  background-color: #2b6597;
 }
 
 .submit button {
@@ -67,4 +85,39 @@ img {
   border-radius: 6px;
   outline: none;
   border: none;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.submit button:hover {
+  background-color: #418ac9;
+}
+
+.submit button:active {
+  background-color: #2b6597;
+}
+
+.option-box {
+  display: flex;
+  font-size: 18px;
+  align-items: center;
+}
+
+.option-box label {
+  margin-right: 8px;
+}
+
+#scale-input {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 6px 8px;
+  width: 40px;
+  text-align: center;
+}
+
+#rotate-input {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 6px 8px;
+  width: 40px;
+  text-align: center;
 }

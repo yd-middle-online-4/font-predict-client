@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
     "react-image-crop": "^10.0.4",
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.5",
@@ -44,6 +45,7 @@
   },
   "proxy": "http://127.0.0.1:5555",
   "devDependencies": {
+    "@types/react-helmet": "^6.1.5",
     "@types/styled-components": "^5.1.25"
   }
 }

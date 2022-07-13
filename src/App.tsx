@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Helmet } from "react-helmet";
 
 import ReactCrop, {
   centerCrop,
@@ -144,100 +145,130 @@ export default function App() {
   //   download?.setAttribute("href", image!);
   // }
   return (
-    <div className="App">
-      <div className="header">
-        <h1>서체 폰트 판별기</h1>
-        <h3>이미지를 업로드하고 문장에 맞춰서 잘라주세요.</h3>
-        <p>아래는 예시입니다. (5글자 권장)</p>
-        <img src={`/images/sample.jpg`} alt="" />
-      </div>
-      <div className="Crop-Controls">
-        <div className="filebox">
-          <label htmlFor="img_file">업로드</label>
-          <input
-            id="img_file"
-            type="file"
-            accept="image/*"
-            onChange={onSelectFile}
-          />
-          {filename && <span>{filename}</span>}
-        </div>
-        <div>
-          <label htmlFor="scale-input">배율: </label>
-          <input
-            id="scale-input"
-            type="number"
-            step="0.1"
-            value={scale}
-            disabled={!imgSrc}
-            onChange={(e) => setScale(Number(e.target.value))}
-          />
-        </div>
-        <div>
-          <label htmlFor="rotate-input">회전: </label>
-          <input
-            id="rotate-input"
-            type="number"
-            value={rotate}
-            disabled={!imgSrc}
-            onChange={(e) =>
-              setRotate(Math.min(180, Math.max(-180, Number(e.target.value))))
-            }
-          />
-        </div>
-        <div className="toggle">
-          <button onClick={handleToggleAspectClick}>
-            비율 고정 {aspect ? "on" : "off"}
-          </button>
-        </div>
-      </div>
-      {Boolean(imgSrc) && (
-        <ReactCrop
-          crop={crop}
-          onChange={(_, percentCrop) => setCrop(percentCrop)}
-          onComplete={(c) => setCompletedCrop(c)}
-          aspect={aspect}
-        >
+    <>
+      <Helmet>
+        <title>폰트 판별기</title>
+      </Helmet>
+      <div className="App">
+        <div className="header">
+          <h1>당신의 필적은 무엇과 유사할까요?</h1>
+          <h3>이미지를 업로드하고 문장에 맞춰서 잘라주세요.</h3>
+          <p>아래는 예시입니다. (5글자 권장)</p>
           <img
-            className="original-img"
-            ref={imgRef}
-            alt="Crop me"
-            src={imgSrc}
-            style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-            onLoad={onImageLoad}
-          />
-        </ReactCrop>
-      )}
-      <div>
-        {Boolean(completedCrop) && (
-          <canvas
-            ref={previewCanvasRef}
+            src={`/images/sample.jpg`}
+            alt=""
             style={{
-              border: "1px solid black",
-              objectFit: "contain",
-              width: completedCrop?.width,
-              height: completedCrop?.height,
+              marginBottom: "10px",
             }}
           />
+        </div>
+        <div className="Crop-Controls">
+          <div className="filebox">
+            <label htmlFor="img_file">업로드</label>
+            <input
+              id="img_file"
+              type="file"
+              accept="image/*"
+              onChange={onSelectFile}
+            />
+            {filename && <span>{filename}</span>}
+          </div>
+          <div
+            className="option-box"
+            style={{
+              marginBottom: "8px",
+            }}
+          >
+            <label htmlFor="scale-input">배율: </label>
+            <input
+              id="scale-input"
+              type="number"
+              step="0.1"
+              value={scale}
+              disabled={!imgSrc}
+              onChange={(e) => setScale(Number(e.target.value))}
+            />
+          </div>
+          <div className="option-box">
+            <label htmlFor="rotate-input">회전: </label>
+            <input
+              id="rotate-input"
+              type="number"
+              value={rotate}
+              disabled={!imgSrc}
+              onChange={(e) =>
+                setRotate(Math.min(180, Math.max(-180, Number(e.target.value))))
+              }
+            />
+          </div>
+          <div className="toggle">
+            <button onClick={handleToggleAspectClick}>
+              비율 고정 {aspect ? "on" : "off"}
+            </button>
+          </div>
+        </div>
+        {Boolean(imgSrc) && (
+          <ReactCrop
+            crop={crop}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+          >
+            <img
+              className="original-img"
+              ref={imgRef}
+              alt="Crop me"
+              src={imgSrc}
+              style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+              onLoad={onImageLoad}
+            />
+          </ReactCrop>
+        )}
+        <div>
+          {Boolean(completedCrop) && (
+            <canvas
+              ref={previewCanvasRef}
+              style={{
+                border: "1px solid black",
+                objectFit: "contain",
+                width: completedCrop?.width,
+                height: completedCrop?.height,
+              }}
+            />
+          )}
+        </div>
+        {filename && (
+          <form
+            className="submit"
+            onSubmit={(e) => haddleUpload(e)}
+            style={{
+              marginTop: "20px",
+              marginBottom: "30px",
+            }}
+          >
+            <button>분석하기</button>
+          </form>
+        )}
+        {loading && (
+          <div>
+            <span>제출 중...</span>
+          </div>
+        )}
+        {predict && (
+          <div>
+            <h1>분석 결과</h1>
+            <h3>{result?.font}</h3>
+            <img
+              src={`/images/${result?.font_idx}.jpg`}
+              alt=""
+              style={{
+                borderRadius: "8px",
+                boxShadow: "1px 1px 3px 2px rgba(0, 0, 0, 0.3)",
+              }}
+            />
+          </div>
         )}
       </div>
-      {filename && (
-        <form className="submit" onSubmit={(e) => haddleUpload(e)}>
-          <button>Submit</button>
-        </form>
-      )}
-      {loading && (
-        <div>
-          <span>제출 중...</span>
-        </div>
-      )}
-      {predict && (
-        <div>
-          <h1>분석 결과</h1>
-          <h3>{result?.font}</h3>
-          <img src={`/images/${result?.font_idx}.jpg`} alt="" />
-        </div>
-      )}
-    </div>
+    </>
   );
 }
