@@ -51,11 +51,6 @@ export default function App() {
   const [predict, setPredict] = useState<boolean>(false);
   const [filename, setFilename] = useState<string | boolean>(false);
   const [result, setResult] = useState<Result | undefined>();
-  const [address, setAddress] = useState<string>(
-    "http://127.0.0.1:5555/predict"
-  );
-  const [value, setValue] = useState<string>("");
-  const inputRef = useRef(null);
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -112,6 +107,7 @@ export default function App() {
     event.preventDefault();
     setLoading(true);
     const imgURL = previewCanvasRef.current?.toDataURL("image/png");
+    const address = "https://font-predict.herokuapp.com/predict";
     fetch(imgURL!)
       .then((res) => res.blob())
       .then((blob) => {
@@ -141,18 +137,6 @@ export default function App() {
       });
   }
 
-  const onApplyAddress = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setAddress(value);
-  };
-
-  function onChange(event: React.FormEvent<HTMLInputElement>) {
-    const {
-      currentTarget: { value },
-    } = event;
-    setValue(value);
-  }
-
   // function haddleDownload() {
   //   const getImage = previewCanvasRef.current?.toDataURL("image/png");
   //   const download = document.getElementById("download");
@@ -167,16 +151,6 @@ export default function App() {
         <p>아래는 예시입니다. (5글자 권장)</p>
         <img src={`/images/sample.jpg`} alt="" />
       </div>
-      <form onSubmit={onApplyAddress} className="server-input">
-        <h3>서버 주소</h3>
-        <input
-          value={value}
-          onChange={onChange}
-          type="text"
-          placeholder="주소를 입력해주세요."
-        />
-        <button>주소 적용</button>
-      </form>
       <div className="Crop-Controls">
         <div className="filebox">
           <label htmlFor="img_file">업로드</label>
