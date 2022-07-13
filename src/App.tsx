@@ -173,39 +173,47 @@ export default function App() {
             />
             {filename && <span>{filename}</span>}
           </div>
-          <div
-            className="option-box"
-            style={{
-              marginBottom: "8px",
-            }}
-          >
-            <label htmlFor="scale-input">배율: </label>
-            <input
-              id="scale-input"
-              type="number"
-              step="0.1"
-              value={scale}
-              disabled={!imgSrc}
-              onChange={(e) => setScale(Number(e.target.value))}
-            />
-          </div>
-          <div className="option-box">
-            <label htmlFor="rotate-input">회전: </label>
-            <input
-              id="rotate-input"
-              type="number"
-              value={rotate}
-              disabled={!imgSrc}
-              onChange={(e) =>
-                setRotate(Math.min(180, Math.max(-180, Number(e.target.value))))
-              }
-            />
-          </div>
-          <div className="toggle">
-            <button onClick={handleToggleAspectClick}>
-              비율 고정 {aspect ? "on" : "off"}
-            </button>
-          </div>
+          {filename && (
+            <>
+              <div
+                className="option-box"
+                style={{
+                  marginBottom: "8px",
+                }}
+              >
+                <label htmlFor="scale-input">배율: </label>
+                <input
+                  id="scale-input"
+                  type="number"
+                  step="0.1"
+                  value={scale}
+                  disabled={!imgSrc}
+                  onChange={(e) => setScale(Number(e.target.value))}
+                />
+              </div>
+              <div className="option-box">
+                <label htmlFor="rotate-input">회전: </label>
+                <input
+                  id="rotate-input"
+                  type="number"
+                  value={rotate}
+                  disabled={!imgSrc}
+                  onChange={(e) =>
+                    setRotate(
+                      Math.min(180, Math.max(-180, Number(e.target.value)))
+                    )
+                  }
+                />
+              </div>
+            </>
+          )}
+          {filename && (
+            <div className="toggle">
+              <button onClick={handleToggleAspectClick}>
+                비율 고정 {aspect ? "on" : "off"}
+              </button>
+            </div>
+          )}
         </div>
         {Boolean(imgSrc) && (
           <ReactCrop
